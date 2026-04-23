@@ -173,4 +173,50 @@ public class AplikasiSiswa {
         lblStatus.setForeground(warna);
     }
 
+    private void tambahSiswa() {
+        String nis    = txtNIS.getText().trim();
+        String nama   = txtNama.getText().trim();
+        String alamat = txtAlamat.getText().trim();
+
+        // semua field harus terisi
+        if (nis.isEmpty() || nama.isEmpty() || alamat.isEmpty()) {
+            JOptionPane.showMessageDialog(frame,
+                "Semua field (NIS, Nama, Alamat) harus diisi!",
+                "Peringatan", JOptionPane.WARNING_MESSAGE);
+            setStatus("Gagal: ada field yang kosong.", Color.RED);
+            return;
+        }
+
+        // NIS tidak boleh duplikat
+        ArrayList<String[]> dataSiswa = bacaSemuaData();
+        for (String[] s : dataSiswa) {
+            if (s[0].equalsIgnoreCase(nis)) {
+                JOptionPane.showMessageDialog(frame,
+                    "NIS \"" + nis + "\" sudah terdaftar!\n" +
+                    "Setiap siswa harus memiliki NIS yang unik.",
+                    "Error: Duplikasi NIS", JOptionPane.ERROR_MESSAGE);
+                setStatus("Error: NIS " + nis + " sudah ada.", Color.RED);
+                return;
+            }
+        }
+
+        // Simpan ke file CSV (file dibuat otomatis jika belum ada)
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(NAMA_FILE, true))) {
+            bw.write(nis + "," + nama + "," + alamat);
+            bw.newLine();
+            JOptionPane.showMessageDialog(frame,
+                "Data siswa berhasil ditambahkan!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            setStatus("Sukses: data " + nama + " ditambahkan.", new Color(39, 130, 70));
+            bersihkanForm();
+            muatDataDariFile();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(frame,
+                "Gagal menyimpan data ke file!\nDetail: " + ex.getMessage(),
+                "Error File", JOptionPane.ERROR_MESSAGE);
+            setStatus("Error: gagal menulis file.", Color.RED);
+        }
+    }
 }
+
+
+    
