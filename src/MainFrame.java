@@ -238,4 +238,101 @@ public class MainFrame {
             setStatus("Error: gagal membaca file.", Color.RED);
         }
     }
+    // Update data siswa
+        private void updateSiswa() {
+        String nis    = txtNIS.getText().trim();
+        String nama   = txtNama.getText().trim();
+        String alamat = txtAlamat.getText().trim();
+
+        if (nis.isEmpty() || nama.isEmpty() || alamat.isEmpty()) {
+            JOptionPane.showMessageDialog(frame,
+                "Pilih data dari tabel, lalu ubah Nama atau Alamat!",
+                "Peringatan", JOptionPane.WARNING_MESSAGE);
+            setStatus("Gagal update: pilih data dari tabel dulu.", Color.RED);
+            return;
+        }
+
+        try {
+            ArrayList<Siswa> data = SiswaCSV.bacaSemua();
+            boolean ditemukan = false;
+
+            for (Siswa s : data) {
+                if (s.getNis().equalsIgnoreCase(nis)) {
+                    s.setNama(nama);
+                    s.setAlamat(alamat);
+                    ditemukan = true;
+                    break;
+                }
+            }
+
+            if (!ditemukan) {
+                JOptionPane.showMessageDialog(frame,
+                    "NIS \"" + nis + "\" tidak ditemukan!",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                setStatus("Error: NIS " + nis + " tidak ditemukan.", Color.RED);
+                return;
+            }
+
+            // Tulis ulang file via utility class
+            SiswaCSV.simpanSemua(data);
+
+            JOptionPane.showMessageDialog(frame,
+                "Data siswa berhasil diperbarui!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            setStatus("Sukses: data NIS " + nis + " diperbarui.", new Color(39, 130, 70));
+            bersihkanForm();
+            muatData();
+
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(frame,
+                "Gagal memperbarui data!\nDetail: " + ex.getMessage(),
+                "Error File", JOptionPane.ERROR_MESSAGE);
+            setStatus("Error: gagal menulis file.", Color.RED);
+        }
+    }
+
+    // Hapus data siswa
+        private void hapusSiswa() {
+        String nis = txtNIS.getText().trim();
+
+        if (nis.isEmpty()) {
+            JOptionPane.showMessageDialog(frame,
+                "Pilih data dari tabel terlebih dahulu!",
+                "Peringatan", JOptionPane.WARNING_MESSAGE);
+            setStatus("Gagal hapus: pilih data dari tabel dulu.", Color.RED);
+            return;
+        }
+
+        int konfirmasi = JOptionPane.showConfirmDialog(frame,
+            "Yakin ingin menghapus siswa dengan NIS: " + nis + "?\n" +
+            "Data yang dihapus tidak dapat dikembalikan.",
+            "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+        if (konfirmasi != JOptionPane.YES_OPTION) return;
+
+        try {
+            ArrayList<Siswa> data = SiswaCSV.bacaSemua();
+            boolean dihapus = data.removeIf(s -> s.getNis().equalsIgnoreCase(nis));
+
+            if (!dihapus) {
+                JOptionPane.showMessageDialog(frame,
+                    "NIS tidak ditemukan!", "Error", JOptionPane.ERROR_MESSAGE);
+                setStatus("Error: NIS " + nis + " tidak ditemukan.", Color.RED);
+                return;
+            }
+
+            SiswaCSV.simpanSemua(data);
+
+            JOptionPane.showMessageDialog(frame,
+                "Data siswa berhasil dihapus!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            setStatus("Sukses: data NIS " + nis + " dihapus.", new Color(39, 130, 70));
+            bersihkanForm();
+            muatData();
+
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(frame,
+                "Gagal menghapus data!\nDetail: " + ex.getMessage(),
+                "Error File", JOptionPane.ERROR_MESSAGE);
+            setStatus("Error: gagal menulis file.", Color.RED);
+        }
+    }
 }
