@@ -166,4 +166,76 @@ public class MainFrame {
         lblStatus.setText(" " + pesan);
         lblStatus.setForeground(warna);
     }
+
+    private void tambahSiswa() {
+        String nis    = txtNIS.getText().trim();
+        String nama   = txtNama.getText().trim();
+        String alamat = txtAlamat.getText().trim();
+
+        // Validasi field kosong
+        if (nis.isEmpty() || nama.isEmpty() || alamat.isEmpty()) {
+            JOptionPane.showMessageDialog(frame,
+                "Semua field (NIS, Nama, Alamat) harus diisi!",
+                "Peringatan", JOptionPane.WARNING_MESSAGE);
+            setStatus("Gagal: ada field yang kosong.", Color.RED);
+            return;
+        }
+
+        try {
+            // Cek duplikasi NIS menggunakan SiswaCSV (utility class)
+            if (SiswaCSV.isNisDuplikat(nis)) {
+                JOptionPane.showMessageDialog(frame,
+                    "NIS \"" + nis + "\" sudah terdaftar!\n" +
+                    "Setiap siswa harus memiliki NIS yang unik.",
+                    "Error: Duplikasi NIS", JOptionPane.ERROR_MESSAGE);
+                setStatus("Error: NIS " + nis + " sudah ada.", Color.RED);
+                return;
+            }
+
+            // Tambah ke file CSV via utility class (mode append)
+            SiswaCSV.tambahSatu(new Siswa(nis, nama, alamat));
+
+            JOptionPane.showMessageDialog(frame,
+                "Data siswa berhasil ditambahkan!",
+                "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            setStatus("Sukses: data " + nama + " ditambahkan.",
+                      new Color(39, 130, 70));
+            bersihkanForm();
+            muatData();
+
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(frame,
+                "Gagal menyimpan data ke file!\nDetail: " + ex.getMessage(),
+                "Error File", JOptionPane.ERROR_MESSAGE);
+            setStatus("Error: gagal menulis file.", Color.RED);
+        }
+    }
+    private void muatData() {
+        modelTabel.setRowCount(0); // kosongkan tabel dulu
+
+        try {
+            ArrayList<Siswa> data = SiswaCSV.bacaSemua();
+
+            // File belum ada: bacaSemua() kembalikan list kosong
+            if (data.isEmpty()) {
+                setStatus("Info: " + SiswaCSV.NAMA_FILE +
+                          " belum ada atau kosong. Silakan tambahkan data.",
+                          new Color(150, 80, 0));
+                return;
+            }
+
+            // Isi tabel dari ArrayList<Siswa>
+            for (Siswa s : data) {
+                modelTabel.addRow(new String[]{s.getNis(), s.getNama(), s.getAlamat()});
+            }
+            setStatus("Berhasil memuat " + data.size() + " data siswa dari "
+                      + SiswaCSV.NAMA_FILE + ".", new Color(39, 130, 70));
+
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(frame,
+                "Gagal membaca file!\nDetail: " + ex.getMessage(),
+                "Error Membaca File", JOptionPane.ERROR_MESSAGE);
+            setStatus("Error: gagal membaca file.", Color.RED);
+        }
+    }
 }
