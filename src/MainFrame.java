@@ -1,11 +1,11 @@
 package src;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 public class MainFrame {
 
@@ -334,5 +334,17 @@ public class MainFrame {
                 "Error File", JOptionPane.ERROR_MESSAGE);
             setStatus("Error: gagal menulis file.", Color.RED);
         }
+    }
+    private void bersihkanForm() {
+        txtNIS.setText("");
+        txtNama.setText("");
+        txtAlamat.setText("");
+        txtNIS.setEditable(true);
+        tabel.clearSelection();
+        setStatus("Form dibersihkan. Siap input data baru.", new Color(80, 80, 80));
+    }
+    public static void main(String[] args) {
+        // invokeLater memastikan GUI dibuat di Event Dispatch Thread (EDT)
+        SwingUtilities.invokeLater(MainFrame::new);
     }
 }
