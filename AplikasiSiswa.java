@@ -216,6 +216,42 @@ public class AplikasiSiswa {
             setStatus("Error: gagal menulis file.", Color.RED);
         }
     }
+    
+    private void muatDataDariFile() {
+        modelTabel.setRowCount(0); 
+
+        File fileCsv = new File(NAMA_FILE);
+
+        if (!fileCsv.exists()) {
+            JOptionPane.showMessageDialog(frame,
+                "File \"" + NAMA_FILE + "\" belum ditemukan.\n" +
+                "Silakan tambahkan data siswa untuk membuat file baru secara otomatis.",
+                "Informasi: File Tidak Ada", JOptionPane.INFORMATION_MESSAGE);
+            setStatus("Info: " + NAMA_FILE + " belum ada. Silakan tambahkan data.", new Color(150, 80, 0));
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileCsv))) {
+            String baris;
+            int jumlah = 0;
+            while ((baris = br.readLine()) != null) {
+                if (!baris.trim().isEmpty()) {
+                    String[] bagian = baris.split(",", 3);
+                    if (bagian.length == 3) {
+                        modelTabel.addRow(bagian);
+                        jumlah++;
+                    }
+                }
+            }
+            setStatus("Berhasil memuat " + jumlah + " data siswa dari " + NAMA_FILE + ".",
+                      new Color(39, 130, 70));
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(frame,
+                "Gagal membaca file \"" + NAMA_FILE + "\"!\nDetail: " + ex.getMessage(),
+                "Error Membaca File", JOptionPane.ERROR_MESSAGE);
+            setStatus("Error: gagal membaca file.", Color.RED);
+        }
+    }
 }
 
 
